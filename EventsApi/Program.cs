@@ -1,6 +1,7 @@
 using EventsApi.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using System.Reflection;
 
 namespace EventsApi
 {
@@ -28,7 +29,7 @@ namespace EventsApi
             //Documentation of my API Events
             builder.Services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("V1", new OpenApiInfo
+                c.SwaggerDoc("v1", new OpenApiInfo
                 {
                     Title = "EventsApi.API",
                     Version = "v1",
@@ -39,9 +40,10 @@ namespace EventsApi
                         Url = new Uri("https://www.linkedin.com/in/luanmslima/")
                     }
                 });
-                var xmlFile = "EventsApi.API.xml";
+                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                 c.IncludeXmlComments(xmlPath);
+
             });
 
             var app = builder.Build();
@@ -50,7 +52,10 @@ namespace EventsApi
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
-                app.UseSwaggerUI();
+                app.UseSwaggerUI(c =>
+                {
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "EventsApi");
+                }); 
             }
 
             app.UseHttpsRedirection();

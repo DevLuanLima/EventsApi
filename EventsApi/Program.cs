@@ -1,3 +1,7 @@
+using EventsApi.Persistence;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
+
 namespace EventsApi
 {
     public class Program
@@ -8,10 +12,37 @@ namespace EventsApi
 
             // Add services to the container.
 
+            //In Memory DataBase, please remove the comments in the next line to use this function and comment the Connection String
+            // builder.Services.AddDbContext<DevEventsDbContext>(o => o.UseInMemoryDatabase("DevEventsDb"));
+
+            //Add Connection String 
+            var connectionString = builder.Configuration.GetConnectionString("EventsApi");
+
+            builder.Services.AddDbContext<EventsDbContext>(o => o.UseSqlServer(connectionString));
+
+
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+
+            //Documentation of my API Events
+            builder.Services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("V1", new OpenApiInfo
+                {
+                    Title = "EventsApi.API",
+                    Version = "v1",
+                    Contact = new OpenApiContact
+                    {
+                        Name = "DevLuanLima",
+                        Email = "devluanlima@mail.com",
+                        Url = new Uri("https://www.linkedin.com/in/luanmslima/")
+                    }
+                });
+                var xmlFile = "EventsApi.API.xml";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                c.IncludeXmlComments(xmlPath);
+            });
 
             var app = builder.Build();
 
